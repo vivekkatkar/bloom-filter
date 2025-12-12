@@ -1,46 +1,45 @@
-package main
-
+package main 
 import (
 	"fmt"
 
 	"github.com/spaolacci/murmur3"
 )
 
-var hasher = murmur3.New64()
+var hasher_obj = murmur3.New64()
 
-func hash(key string, size int) int {
-	hasher.Write([]byte(key))
-	hash := hasher.Sum64()
-	hasher.Reset()
+func get_hash(key string, size int) int {
+	hasher_obj.Write([]byte(key))
+	hash := hasher_obj.Sum64()
+	hasher_obj.Reset()
 
 	return int(hash % uint64(size))
 }
 
-type BloomFilter struct {
+type BloomFilterBasic struct {
 	filter []bool
 	size   int
 }
 
-func NewBloomFilter(size int) *BloomFilter {
-	return &BloomFilter{
+func NewBasicBloomFilter(size int) *BloomFilterBasic {
+	return &BloomFilterBasic{
 		filter: make([]bool, size),
 		size:   size,
 	}
 }
 
-func (b *BloomFilter) add(key string) {
-	var idx = hash(key, b.size)
+func (b *BloomFilterBasic) add(key string) {
+	var idx = get_hash(key, b.size)
 	b.filter[idx] = true
 
-	fmt.Println("Wrote "+key+" at : ", idx)
+	// fmt.Println("Wrote "+key+" at : ", idx)
 }
 
-func (b *BloomFilter) exists(key string) bool {
-	var idx = hash(key, b.size)
+func (b *BloomFilterBasic) exists(key string) bool {
+	var idx = get_hash(key, b.size)
 	return b.filter[idx]
 }
 
-func (b *BloomFilter) print() {
+func (b *BloomFilterBasic) print() {
 	print("[")
 	for _, val := range b.filter {
 		print(val, " ")
@@ -48,8 +47,8 @@ func (b *BloomFilter) print() {
 	print("]")
 }
 
-func main() {
-	bloom := NewBloomFilter(16)
+func basic_bloom_test() {
+	bloom := NewBasicBloomFilter(16)
 	keys := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
 
 	for _, key := range keys {
